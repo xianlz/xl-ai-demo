@@ -1,0 +1,9 @@
+package com.zxl.rag.config;
+
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class RagConfig {
+
+
+}
