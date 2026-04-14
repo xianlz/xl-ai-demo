@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//d/prod/tools/idea/workspace/xl-ai-demo/**)",
+      "Bash(mvn compile:*)"
+    ]
+  }
+}

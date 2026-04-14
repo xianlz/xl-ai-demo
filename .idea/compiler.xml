@@ -12,7 +12,7 @@
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="xl-ai-demo" options="-parameters" />
+      <module name="xl-ai-demo" options="" />
       <module name="xl-ai-rag" options="-parameters" />
     </option>
   </component>

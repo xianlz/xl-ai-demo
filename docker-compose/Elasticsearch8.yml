@@ -1,0 +1,58 @@
+version: "3.1"
+
+volumes:
+  data:
+  config:
+  plugin:
+
+networks:
+  es:
+
+services:
+  elasticsearch:
+    image: elasticsearch
+    container_name: elasticsearch  # 容器名保持为 elasticsearch
+    ports:
+      - 9200:9200
+      - 9300:9300
+    networks:
+      - es
+    environment:
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+      - xpack.security.enabled=true
+      - xpack.security.autoconfiguration.enabled=true
+      # - xpack.security.enrollment.enabled=true
+      # 移除 NODE_OPTIONS（OpenSSL 警告不影响功能，无需强制关闭）
+      # 注意：ES 环境变量中没有 ELASTICSEARCH_USERNAME/PASSWORD，需手动创建该用户
+    volumes:
+      - /usr/volume/ElasticSearch/data:/usr/share/elasticsearch/data
+      - /usr/volume/ElasticSearch/config:/usr/share/elasticsearch/config
+      - /usr/volume/ElasticSearch/plugins:/usr/share/elasticsearch/plugins
+    user: "1000:1000"
+
+  kibana:
+    image: kibana
+    container_name: kibana
+    ports:
+      - 5601:5601
+    networks:
+      - es
+    environment:
+      - SERVER_HOST=0.0.0.0  # 仅保留此环境变量，避免与配置文件冲突
+      # 移除 ELASTICSEARCH_HOSTS 环境变量（由 kibana.yml 统一配置）
+      # 彻底删除服务账户令牌相关配置（避免混淆）
+    volumes:
+      - /usr/volume/ElasticSearch/kibana.yml:/usr/share/kibana/config/kibana.yml
+    depends_on:
+      - elasticsearch  # 依赖正确的 ES 服务名
+
+# ------------------------------------ kibana.yml 文件内容--------------------------------------------------------------
+server.host: "0.0.0.0"  # 明确允许外部访问，替换 "0" 避免歧义
+server.shutdownTimeout: "5s"
+# 与 ES 容器名保持一致（elasticsearch）
+elasticsearch.hosts: ["http://elasticsearch:9200"]
+monitoring.ui.container.elasticsearch.enabled: true
+# 仅保留用户名密码认证（与 ES 配置匹配）
+elasticsearch.username: "kibana_user"
+elasticsearch.password: "xxxx"

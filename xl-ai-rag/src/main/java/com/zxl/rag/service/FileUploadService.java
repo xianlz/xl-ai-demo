@@ -3,7 +3,6 @@ package com.zxl.rag.service;
 
 import com.zxl.rag.entity.VectorDocument;
 import com.zxl.rag.util.DocumentParser;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.embedding.EmbeddingModel;
@@ -16,13 +15,18 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
-@AllArgsConstructor
 @Slf4j
 public class FileUploadService {
 
     private final VectorService vectorService;
     private final EmbeddingModel embeddingModel;
     private final DocumentParser documentParser;
+
+    public FileUploadService(VectorService vectorService, EmbeddingModel embeddingModel, DocumentParser documentParser) {
+        this.vectorService = vectorService;
+        this.embeddingModel = embeddingModel;
+        this.documentParser = documentParser;
+    }
 
     /**
      * 处理用户上传的文件，生成向量并插入ES
@@ -50,14 +54,18 @@ public class FileUploadService {
                         doc.setTitle(fileName);
                         doc.setContent(text.getText());
                         // 步骤4：生成向量（核心！必须在插入前赋值）
-                        doc.setVector(embeddingModel.embed(text));
+                        float[] embed = embeddingModel.embed(text.getText());
+                        log.info("嵌入模型生成的向量维度：{}", embed.length);
+                        doc.setVector(embed);
                         return doc;
                     })
                     .collect(Collectors.toList());
 
             // 步骤5：批量插入向量文档（调用你现有的 bulkInsertDocuments 方法）
-            vectorService.bulkInsertDocuments(vectorDocuments);
-            log.info("用户 {} 上传文件 {} 处理完成，插入 {} 个向量文档", userId, fileName, vectorDocuments.size());
+            boolean isSuccess = vectorService.bulkInsertDocuments(vectorDocuments);
+            if (isSuccess){
+                log.info("用户 {} 上传文件 {} 处理完成，插入 {} 个向量文档", userId, fileName, vectorDocuments.size());
+            }
             return vectorDocuments.size();
 
         } catch (Exception e) {
