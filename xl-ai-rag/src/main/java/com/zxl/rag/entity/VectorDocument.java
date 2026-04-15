@@ -13,4 +13,10 @@ public class VectorDocument {
     private String content;
     private float[] vector;
 
+    // 知识库相关字段
+    private String insuranceType;
+    private String subType;
+    private String docUuid;
+    private Integer chunkIndex;
+
 }

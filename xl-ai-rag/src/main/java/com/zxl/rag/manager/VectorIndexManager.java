@@ -6,6 +6,7 @@ import co.elastic.clients.elasticsearch.indices.DeleteIndexResponse;
 import com.zxl.rag.entity.VectorDocument;
 import jakarta.annotation.PostConstruct;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -18,11 +19,12 @@ import java.util.Map;
  */
 @Component
 @AllArgsConstructor
+@Slf4j
 public class VectorIndexManager {
 
     private final ElasticsearchClient client;
     private static final String INDEX_NAME = "vector-documents";
-    private static final int INDEX_DIMS = 384;
+    private static final int INDEX_DIMS = 1536;
 
     /**
      * 创建向量索引
@@ -56,9 +58,9 @@ public class VectorIndexManager {
                     )
             );
 
-            System.out.println("索引创建成功: " + response.index());
+            log.info("索引创建成功: " + response.index());
         } else {
-            System.out.println("索引已存在");
+            log.info("索引已存在");
         }
     }
 
@@ -67,7 +69,7 @@ public class VectorIndexManager {
      */
     public void deleteIndex() throws Exception {
         DeleteIndexResponse response = client.indices().delete(d -> d.index(INDEX_NAME));
-        System.out.println("索引删除成功: " + response.acknowledged());
+        log.info("索引删除成功: " + response.acknowledged());
     }
 
     /**
