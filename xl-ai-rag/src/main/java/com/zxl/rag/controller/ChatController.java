@@ -20,6 +20,7 @@ public class ChatController {
      * @param request 请求体，包含 question、userId、topK
      * @return 回答结果
      */
+
     @PostMapping("/chat")
     public ResponseEntity<Map<String, Object>> chat(@RequestBody Map<String, Object> request) {
         String question = (String) request.get("question");
